@@ -1,5 +1,6 @@
 package com.jwt.study.dto;
 
+import com.jwt.study.entity.User;
 import com.jwt.study.entity.Vhcle;
 import lombok.Builder;
 import lombok.Data;
@@ -32,11 +33,12 @@ public class VhcleDto {
         this.vhcleNm = vhcleNm;
     }
 
-    public Vhcle toVhcle(){
+    public Vhcle toVhcle(User user){
         return Vhcle.builder()
                     .frontNmbr(frontNmbr)
                     .backNmbr(backNmbr)
                     .vhcleNm(vhcleNm)
+                    .user(user)
                     .build();
 
     }

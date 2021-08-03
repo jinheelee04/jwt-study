@@ -14,16 +14,17 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor
+@ToString
 public class UserDto {
 
     @NotBlank(message = "사용자 아이디는 필수 입력값 입니다.")
     @Size(min = 3, max = 50)
     private String username;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(message = "비밀번호는 필수 입력값 입니다.")
     @Size(min =3, max = 100)
     private String password;
@@ -32,15 +33,14 @@ public class UserDto {
     @Size(min =11, max =11, message = "전화번호 11자리를 입력해주세요.")
     private String telNo;
 
-    @Size(max = 2, message = "차량은 최대 2대 까지 등록 가능합니다.")
-    private List<VhcleDto> vhcles = new ArrayList<>();
+    private Optional<List<VhcleDto>> vhcles = Optional.empty();
 
     @Builder
-    public UserDto(String username,  String password,  String telNo, List<VhcleDto> vhcles) {
+    public UserDto(String username,  String password,  String telNo, @Size(max = 2, message = "차량은 최대 2대 까지 등록 가능합니다.")List<VhcleDto> vhcles) {
         this.username = username;
         this.password = password;
         this.telNo = telNo;
-        this.vhcles = vhcles;
+        this.vhcles = Optional.ofNullable(vhcles);
     }
 
 }

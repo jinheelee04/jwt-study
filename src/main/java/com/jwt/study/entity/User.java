@@ -42,6 +42,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade=CascadeType.ALL)
     private List<Vhcle> vhcles = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade=CascadeType.ALL)
     private List<ServiceMemberMapping> serviceMembers = new ArrayList<>();
 
