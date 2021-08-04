@@ -38,4 +38,7 @@ public class SecurityUtil {
         return Optional.ofNullable(username);
     }
 
+    public static Optional<Long> getUserId(){
+        return null;
+    }
 }

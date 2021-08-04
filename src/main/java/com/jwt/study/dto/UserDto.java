@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jwt.study.entity.User;
 import com.jwt.study.entity.Vhcle;
+import com.jwt.study.util.AES256;
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.CascadeType;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -33,14 +33,29 @@ public class UserDto {
     @Size(min =11, max =11, message = "전화번호 11자리를 입력해주세요.")
     private String telNo;
 
-    private Optional<List<VhcleDto>> vhcles = Optional.empty();
+    @Max(value = 2, message = "차량 등록은 최대 2대까지 가능합니다.")
+    private List<VhcleDto> vhcles = new ArrayList<>();
 
     @Builder
     public UserDto(String username,  String password,  String telNo, @Size(max = 2, message = "차량은 최대 2대 까지 등록 가능합니다.")List<VhcleDto> vhcles) {
         this.username = username;
         this.password = password;
         this.telNo = telNo;
-        this.vhcles = Optional.ofNullable(vhcles);
+        this.vhcles = vhcles;
+//    
     }
 
+    public User toUser(PasswordEncoder passwordEncoder){
+        return User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .telNo(AES256.getInstance().aesEncode(telNo))
+                .build();
+    }
+
+    public List<Vhcle> toVhcles(User user){
+        return this.vhcles.stream()
+                            .map(v -> v.toVhcle(user))
+                            .collect(Collectors.toList());
+    }
 }

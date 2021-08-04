@@ -10,6 +10,7 @@ import com.jwt.study.repository.UserRepository;
 import com.jwt.study.repository.VhcleRepository;
 import com.jwt.study.util.AES256;
 import com.jwt.study.util.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +21,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final VhcleRepository vhcleRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository userRepository, VhcleRepository vhcleRepository, PasswordEncoder passwordEncoder){
-        this.userRepository = userRepository;
-        this.vhcleRepository = vhcleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * 회원 가입 
@@ -45,20 +41,13 @@ public class UserService {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
 
         // 사용자 정보 생성
-        User user = User.builder()
-                        .username(userDto.getUsername())
-                        .password(passwordEncoder.encode(userDto.getPassword()))
-                        .telNo(AES256.getInstance().aesEncode(userDto.getTelNo()))
-                        .build();
-
+        User user = userDto.toUser(passwordEncoder);
         // DB에 사용자 정보 저장
         User resultUser = userRepository.save(user);
-        if(userDto.getVhcles().isPresent()){
-            // 차량 정보 생성
-            List<Vhcle> vhcles = userDto.getVhcles().orElse(new ArrayList<>()).stream()
-                    .map(v -> v.toVhcle(resultUser))
-                    .collect(Collectors.toList());
 
+        if(!userDto.getVhcles().isEmpty()){
+            // 차량 정보 생성
+            List<Vhcle> vhcles = userDto.toVhcles(resultUser);
             // DB에 차량 정보 저장
             vhcleRepository.saveAll(vhcles);
         }
